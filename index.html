@@ -656,8 +656,18 @@ function disintegratePhoto(onDone){
     });
   }
 
+  /* position along each particle's bezier arc at normalized time tt (0..1) */
+  function bezierPos(pt, tt){
+    const mt = 1 - tt;
+    return {
+      x: mt * mt * pt.x0 + 2 * mt * tt * pt.cx + tt * tt * pt.tx,
+      y: mt * mt * pt.y0 + 2 * mt * tt * pt.cy + tt * tt * pt.ty
+    };
+  }
+
   const state = {p:0};
   dctx.globalCompositeOperation = 'lighter';
+  dctx.lineCap = 'round';
   gsap.to(state, {
     p:1, duration:1.3, ease:'none',
     onUpdate: () => {
@@ -666,17 +676,19 @@ function disintegratePhoto(onDone){
         let t = (state.p - pt.delay) / (1 - pt.delay);
         t = t < 0 ? 0 : (t > 1 ? 1 : t);
         const eased = 1 - Math.pow(1 - t, 3);
-        const mt = 1 - eased;
-        const x = mt * mt * pt.x0 + 2 * mt * eased * pt.cx + eased * eased * pt.tx;
-        const y = mt * mt * pt.y0 + 2 * mt * eased * pt.cy + eased * eased * pt.ty;
         const fade = 1 - eased;
         if(fade <= 0) return;
+        const trailT = Math.max(0, eased - 0.06);
+        const head = bezierPos(pt, eased);
+        const tail = bezierPos(pt, trailT);
         const twinkle = .65 + .35 * Math.sin(pt.flicker + state.p * 20);
         dctx.globalAlpha = fade * twinkle;
-        dctx.fillStyle = pt.color;
+        dctx.strokeStyle = pt.color;
+        dctx.lineWidth = pt.size * (fade * .7 + .3) * twinkle;
         dctx.beginPath();
-        dctx.arc(x, y, (pt.size * (fade * .7 + .3) * twinkle) / 2, 0, Math.PI * 2);
-        dctx.fill();
+        dctx.moveTo(tail.x, tail.y);
+        dctx.lineTo(head.x, head.y);
+        dctx.stroke();
       });
     },
     onComplete: () => {
