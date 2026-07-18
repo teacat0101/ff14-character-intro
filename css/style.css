@@ -1,0 +1,334 @@
+:root{
+  --void:#05070d;
+  --navy:#0b1224;
+  --panel:#0f1830;
+  --planet:#7fd0e8;
+  --planet-dim:#3f6f82;
+  --coral:#ff6a5c;
+  --star:#eef3fb;
+  --muted:#8b97ac;
+  --line:rgba(238,243,251,0.12);
+  --radius:2px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--star);
+  font-family:"Noto Sans TC","Space Grotesk",sans-serif;
+  overflow-x:hidden;
+}
+::selection{background:var(--coral);color:var(--void);}
+
+/* ---------- starfield ---------- */
+#starfield{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.9) 0, transparent 60%),
+    radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,.7) 0, transparent 60%),
+    radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,.8) 0, transparent 60%),
+    radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,.6) 0, transparent 60%),
+    radial-gradient(1px 1px at 10% 90%, rgba(255,255,255,.7) 0, transparent 60%),
+    radial-gradient(1.5px 1.5px at 55% 45%, rgba(255,255,255,.5) 0, transparent 60%),
+    radial-gradient(1px 1px at 92% 80%, rgba(255,255,255,.8) 0, transparent 60%),
+    radial-gradient(1px 1px at 33% 12%, rgba(255,255,255,.6) 0, transparent 60%);
+  background-size:100% 100%;
+  opacity:.8;
+  animation:drift 90s linear infinite;
+}
+@keyframes drift{
+  0%{background-position:0 0;}
+  100%{background-position:120px 200px;}
+}
+/* ---------- dustfield (floating moon dust) ---------- */
+#dustfield{
+  position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden;
+}
+.dust{
+  position:absolute; top:-12px; left:0; border-radius:50%;
+  background:radial-gradient(circle, rgba(127,208,232,.95) 0%, rgba(127,208,232,0) 70%);
+  animation-name:dustfall; animation-timing-function:linear; animation-iteration-count:infinite;
+}
+@keyframes dustfall{
+  0%{transform:translate(0,0); opacity:0;}
+  8%{opacity:1;}
+  92%{opacity:1;}
+  100%{transform:translate(var(--dx,30px), 112vh); opacity:0;}
+}
+@media (prefers-reduced-motion: reduce){
+  #starfield{animation:none;}
+  #dustfield{display:none;}
+  html{scroll-behavior:auto;}
+}
+
+/* ---------- nav ---------- */
+header{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 28px;
+  transition:background .35s ease, border-color .35s ease, padding .35s ease;
+  border-bottom:1px solid transparent;
+}
+header.solid{
+  background:rgba(5,7,13,0.82);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:12px 28px;
+}
+.brand{
+  font-family:"LXGW WenKai TC",serif;
+  font-size:22px; font-weight:700; letter-spacing:1px; color:var(--star);
+  display:flex; align-items:baseline; gap:8px;
+}
+.brand small{
+  font-family:"Space Mono",monospace; font-size:11px; color:var(--planet);
+  letter-spacing:1px; font-weight:400;
+}
+nav ul{display:flex; gap:32px; list-style:none; margin:0; padding:0;}
+nav a{
+  color:var(--muted); text-decoration:none; font-size:13px;
+  font-family:"Space Mono",monospace; letter-spacing:1.5px;
+  text-transform:uppercase; transition:color .25s ease; position:relative;
+}
+nav a:hover, nav a:focus-visible{color:var(--star);}
+nav a::after{
+  content:""; position:absolute; left:0; bottom:-6px; width:0; height:1px;
+  background:var(--coral); transition:width .25s ease;
+}
+nav a:hover::after, nav a:focus-visible::after{width:100%;}
+
+/* ---------- reticle corner frame (signature element) ---------- */
+.reticle{position:relative;}
+.reticle::before,.reticle::after,
+.reticle .c2::before,.reticle .c2::after{display:none;}
+.reticle-corner{
+  position:absolute; width:22px; height:22px; pointer-events:none;
+  border:1.5px solid var(--planet); opacity:.85; transition:border-color .3s ease, opacity .3s ease;
+}
+.reticle-corner.tl{top:10px; left:10px; border-right:none; border-bottom:none;}
+.reticle-corner.tr{top:10px; right:10px; border-left:none; border-bottom:none;}
+.reticle-corner.bl{bottom:10px; left:10px; border-right:none; border-top:none;}
+.reticle-corner.br{bottom:10px; right:10px; border-left:none; border-top:none;}
+.reticle:hover .reticle-corner{border-color:var(--coral); opacity:1;}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative; min-height:100vh; display:flex; align-items:flex-end;
+  overflow:hidden;
+}
+.hero-img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  filter:saturate(1.05) contrast(1.02);
+}
+.hero-fade{
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(5,7,13,0.05) 0%, rgba(5,7,13,0.25) 45%, rgba(5,7,13,0.97) 100%);
+}
+.hero-grid{
+  position:absolute; inset:0; opacity:.18;
+  background-image:
+    linear-gradient(rgba(127,208,232,.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(127,208,232,.5) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.5) 60%, transparent 100%);
+}
+.hero-content{
+  position:relative; z-index:2; padding:0 28px 90px; max-width:980px;
+  opacity:0;
+}
+.eyebrow{
+  font-family:"Space Mono",monospace; font-size:12px; letter-spacing:3px;
+  color:var(--planet); text-transform:uppercase; margin:0 0 18px;
+  display:flex; align-items:center; gap:10px;
+}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--coral);display:inline-block;}
+.hero h1{
+  font-family:"LXGW WenKai TC",serif; font-weight:700;
+  font-size:clamp(64px,14vw,150px); line-height:.95; margin:0 0 6px;
+  letter-spacing:2px;
+}
+.hero h1 sub{
+  font-family:"Space Mono",monospace; font-size:16px; vertical-align:super;
+  color:var(--muted); letter-spacing:1px; margin-left:14px; font-weight:400;
+}
+.hero p.tagline{
+  font-size:clamp(15px,2vw,19px); color:var(--star); max-width:560px;
+  line-height:1.85; margin:18px 0 0; font-weight:500;
+}
+.scroll-cue{
+  position:absolute; bottom:28px; left:28px; z-index:2; opacity:0;
+  font-family:"Space Mono",monospace; font-size:11px; color:var(--muted);
+  letter-spacing:2px; display:flex; align-items:center; gap:10px;
+}
+.scroll-cue .bar{width:1px; height:34px; background:linear-gradient(var(--planet), transparent); animation:scrollbar 1.8s ease-in-out infinite;}
+@keyframes scrollbar{0%{opacity:.2;}50%{opacity:1;}100%{opacity:.2;}}
+@media (prefers-reduced-motion: reduce){.scroll-cue .bar{animation:none;}}
+
+/* ---------- section shells ---------- */
+section{position:relative; z-index:1; padding:140px 28px;}
+.wrap{max-width:1180px; margin:0 auto;}
+.section-head{margin-bottom:64px;}
+.section-head .eyebrow{margin-bottom:14px;}
+.section-head h2{
+  font-family:"LXGW WenKai TC",serif; font-size:clamp(34px,5vw,52px);
+  margin:0; font-weight:700; letter-spacing:1px;
+}
+.section-head p{color:var(--muted); max-width:520px; margin:16px 0 0; line-height:1.8; font-size:15px;}
+
+/* ---------- about ---------- */
+.about{display:grid; grid-template-columns:0.85fr 1.15fr; gap:72px; align-items:center;}
+.about-photo{position:relative; border-radius:var(--radius); overflow:hidden;}
+.about-photo img{width:100%; display:block; filter:saturate(1.05);}
+.about-photo .tag{
+  position:absolute; bottom:16px; left:16px; z-index:2;
+  font-family:"Space Mono",monospace; font-size:11px; letter-spacing:1.5px;
+  background:rgba(5,7,13,.55); border:1px solid var(--line); padding:6px 10px;
+  color:var(--planet); backdrop-filter:blur(4px);
+}
+.bio p{font-size:16px; line-height:2; color:var(--star); margin:0 0 28px; font-weight:400;}
+.statpanel{
+  border:1px solid var(--line); background:rgba(15,24,48,.45); border-radius:var(--radius);
+  padding:22px 26px;
+}
+.statpanel .row{
+  display:flex; justify-content:space-between; padding:13px 0;
+  border-bottom:1px solid var(--line); font-family:"Space Mono",monospace; font-size:13px;
+}
+.statpanel .row:last-child{border-bottom:none;}
+.statpanel .row span:first-child{color:var(--muted); letter-spacing:1.5px; text-transform:uppercase;}
+.statpanel .row span:last-child{color:var(--star); font-weight:700;}
+
+@media (max-width:860px){
+  .about{grid-template-columns:1fr; gap:40px;}
+}
+
+/* ---------- gallery ---------- */
+.gallery-grid{
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:34px 28px;
+}
+.polaroid{
+  background:#101522; padding:14px 14px 20px; border-radius:1px;
+  box-shadow:0 18px 40px -16px rgba(0,0,0,.7);
+  cursor:pointer; transform:rotate(var(--rot,0deg));
+  transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease;
+  opacity:0; translate:0 24px;
+  border:1px solid rgba(255,255,255,.05);
+}
+/* ---------- generic scroll reveal (animated by GSAP) ---------- */
+.reveal{opacity:0; transform:translateY(24px);}
+
+/* ---------- title wipe reveal (animated by GSAP) ---------- */
+.title-reveal{clip-path:inset(0 100% 0 -4px);}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal, .title-reveal, .polaroid{opacity:1 !important; transform:none !important; translate:0 0 !important; clip-path:none !important;}
+}
+.polaroid:hover{transform:rotate(0deg) translateY(-6px); box-shadow:0 26px 50px -16px rgba(0,0,0,.85);}
+.polaroid .frame{position:relative; overflow:hidden; aspect-ratio:4/5; background:#000;}
+.polaroid .frame img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s ease;}
+.polaroid:hover .frame img{transform:scale(1.06);}
+.polaroid .frame .reticle-corner{width:16px;height:16px; opacity:0; transition:opacity .3s ease;}
+.polaroid:hover .frame .reticle-corner{opacity:1;}
+.polaroid figcaption{margin:14px 4px 0;}
+.cap-text{font-family:"LXGW WenKai TC",serif; font-size:15px; color:var(--star); line-height:1.6;}
+.cap-meta{font-family:"Space Mono",monospace; font-size:10.5px; letter-spacing:1px; color:var(--planet-dim); margin-top:6px; text-transform:uppercase;}
+
+@media (max-width:980px){ .gallery-grid{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:600px){ .gallery-grid{grid-template-columns:1fr;} }
+
+/* ---------- lightbox ---------- */
+.lightbox{
+  position:fixed; inset:0; z-index:100; background:rgba(4,6,11,.94);
+  display:flex; align-items:center; justify-content:center; padding:40px;
+  opacity:0; visibility:hidden; transition:opacity .3s ease;
+}
+.lightbox.active{opacity:1; visibility:visible;}
+.lightbox-inner{max-width:min(900px,92vw); max-height:88vh; position:relative;}
+.lightbox-inner img{max-width:100%; max-height:78vh; display:block; margin:0 auto; border-radius:1px;}
+.lightbox-cap{text-align:center; margin-top:18px;}
+.lightbox-cap .cap-text{font-size:18px;}
+.lightbox-close{
+  position:absolute; top:-46px; right:0; background:none; border:1px solid var(--line);
+  color:var(--star); width:36px; height:36px; cursor:pointer; font-size:18px; border-radius:50%;
+  transition:border-color .25s ease, color .25s ease;
+}
+.lightbox-close:hover{border-color:var(--coral); color:var(--coral);}
+.lightbox-nav{
+  position:absolute; top:50%; transform:translateY(-50%); background:none; border:none;
+  color:var(--star); font-size:30px; cursor:pointer; opacity:.6; transition:opacity .2s ease;
+  padding:10px;
+}
+.lightbox-nav:hover{opacity:1;}
+.lb-prev{left:-56px;} .lb-next{right:-56px;}
+@media (max-width:760px){ .lb-prev{left:6px;} .lb-next{right:6px;} .lightbox-close{top:-40px;} }
+
+/* ---------- divider photo ---------- */
+.divider{
+  position:relative; height:60vh; overflow:hidden;
+}
+.divider img{width:100%; height:100%; object-fit:cover; object-position:center;}
+.divider::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,7,13,1) 0%, rgba(5,7,13,0) 18%, rgba(5,7,13,0) 82%, rgba(5,7,13,1) 100%);}
+.divider .quote{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  text-align:center; z-index:2; padding:0 20px;
+}
+.divider .quote p{
+  font-family:"LXGW WenKai TC",serif; font-size:clamp(20px,3vw,30px); color:var(--star);
+  max-width:680px; line-height:1.8; text-shadow:0 4px 24px rgba(0,0,0,.6);
+}
+
+/* ---------- footer ---------- */
+footer{
+  padding:90px 28px 50px; text-align:center; position:relative; z-index:1;
+  border-top:1px solid var(--line);
+}
+footer .brand{justify-content:center; margin-bottom:18px; font-size:30px;}
+footer p{color:var(--muted); font-size:14px; line-height:1.9; max-width:480px; margin:0 auto 26px;}
+footer .meta{font-family:"Space Mono",monospace; font-size:11px; color:var(--planet-dim); letter-spacing:1.5px;}
+
+
+/* ---------- polaroid develop (顯影) ---------- */
+.polaroid .frame::after{
+  content:""; position:absolute; inset:0; background:#e9e6de; z-index:3;
+  transition:opacity 2.2s ease .15s; opacity:1; pointer-events:none;
+}
+.polaroid .frame img{filter:contrast(.4) brightness(1.6) saturate(.2); transition:filter 2.4s ease .2s, transform .6s ease;}
+.polaroid.developed .frame::after{opacity:0;}
+.polaroid.developed .frame img{filter:contrast(1) brightness(1) saturate(1.05);}
+
+/* ---------- scanline on hover (掃描線) ---------- */
+.polaroid .frame .scanline{
+  position:absolute; left:0; right:0; top:-10%; height:2px; z-index:4;
+  background:linear-gradient(90deg, transparent, var(--planet), transparent);
+  box-shadow:0 0 12px var(--planet);
+  opacity:0; pointer-events:none;
+}
+.polaroid:hover .frame .scanline{animation:scan 1s ease-in-out;}
+@keyframes scan{
+  0%{top:-4%; opacity:0;}
+  10%{opacity:.95;}
+  90%{opacity:.95;}
+  100%{top:104%; opacity:0;}
+}
+
+/* ---------- typewriter hero (打字機) ---------- */
+.tagline .caret{
+  display:inline-block; width:2px; height:1.1em; background:var(--coral);
+  vertical-align:-0.18em; margin-left:3px;
+  animation:blink 0.9s step-end infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+.tagline.done .caret{animation:blink 0.9s step-end 4; animation-fill-mode:forwards; opacity:0;}
+/* 預留高度,避免打字過程中版面跳動 */
+.tagline{min-height:calc(1.85em * 2);}
+
+@media (prefers-reduced-motion: reduce){
+  .polaroid .frame::after{transition:none; opacity:0;}
+  .polaroid .frame img{transition:transform .6s ease; filter:contrast(1) brightness(1) saturate(1.05);}
+  .polaroid:hover .frame .scanline{animation:none;}
+  .tagline .caret{display:none;}
+}
+
+/* focus visibility */
+a:focus-visible, button:focus-visible{outline:2px solid var(--coral); outline-offset:3px;}
